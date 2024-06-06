@@ -6,8 +6,6 @@ const geoip = require("geoip-lite");
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-const IPINFO_TOKEN = process.env.IPINFO_TOKEN;
-
 // Enable trust proxy for getting the real IP address behind a proxy
 app.set("trust proxy", true);
 
@@ -34,22 +32,35 @@ app.get("/ip-lookup", async (req, res) => {
     let response = {
         ipv4: ipv4 || "", // Set ipv4 to empty string if not found
         ipv6: ipv6 || "", // Set ipv6 to empty string if not found
-        geo: {},
     };
+
+    try {
+        let res = await axios.get(
+            `http://ip-api.com/json/${ipv4 ? ipv4 : ipv6}`
+        );
+
+        ipInfoData = res.data;
+    } catch (error) {
+        console.log("err in ip-info : ", err);
+    }
 
     // Prepare response based on ipInfoData
     if (ipInfoData && ipInfoData.ip) {
-        response.geo = {
-            city: ipInfoData.city || "",
-            region: ipInfoData.region || "",
+        response = {
             country: ipInfoData.country || "",
-            latitude: ipInfoData.loc ? ipInfoData.loc.split(",")[0] : "",
-            longitude: ipInfoData.loc ? ipInfoData.loc.split(",")[1] : "",
+            countryCode: ipInfoData.countryCode || "",
+            region: ipInfoData.region || "",
+            regionName: ipInfoData.regionName || "",
+            city: ipInfoData.city || "",
+            zip: ipInfoData.zip || "",
+            latitude: ipInfoData.lat || "",
+            longitude: ipInfoData.lon || "",
             timezone: ipInfoData.timezone || "",
+            isp: ipInfoData.isp || "",
         };
     } else if (geoData) {
         // Fallback to geo lite package
-        response.geo = {
+        response = {
             city: geoData.city || "",
             region: geoData.region || "",
             country: geoData.country || "",
