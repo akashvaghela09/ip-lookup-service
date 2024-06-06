@@ -1,17 +1,11 @@
-const dotenv = require("dotenv");
-dotenv.config();
 const express = require("express");
-const axios = require("axios");
 const geoip = require("geoip-lite");
 const app = express();
-const PORT = process.env.PORT || 5000;
-
-const IPINFO_TOKEN = process.env.IPINFO_TOKEN;
 
 // Enable trust proxy for getting the real IP address behind a proxy
 app.set("trust proxy", true);
 
-app.get("/ip-lookup", async (req, res) => {
+app.get("/ip-lookup", (req, res) => {
     // Get the IP address of the request
     let ipAddress = req.ip;
     let ipv4 = "";
@@ -28,53 +22,31 @@ app.get("/ip-lookup", async (req, res) => {
         ipv4 = ipAddress; // This is an IPv4 address
     }
 
-    let geoData = geoip.lookup(ipAddress);
-    let ipInfoData = {};
+    // Get geographical data for the IP address
+    const geo = geoip.lookup(ipAddress);
 
-    try {
-        const ipInfoResponse = await axios.get(
-            `https://ipinfo.io/${ipAddress}?token=${IPINFO_TOKEN}`
-        );
-        ipInfoData = ipInfoResponse.data;
-    } catch (error) {
-        console.error("Error fetching data from ipinfo:", error);
-    }
-
-    let response = {
+    const response = {
         ipv4: ipv4,
         ipv6: ipv6,
         geo: {},
     };
 
-    // Prepare response based on ipInfoData
-    if (ipInfoData && ipInfoData.ip) {
+    if (geo) {
         response.geo = {
-            city: ipInfoData.city || "",
-            region: ipInfoData.region || "",
-            country: ipInfoData.country || "",
-            latitude: ipInfoData.loc ? ipInfoData.loc.split(",")[0] : "",
-            longitude: ipInfoData.loc ? ipInfoData.loc.split(",")[1] : "",
-            timezone: ipInfoData.timezone || "",
-            isp: ipInfoData.org || "",
-        };
-    } else if (geoData) {
-        // Fallback to geo lite package
-        response.geo = {
-            city: geoData.city || "",
-            region: geoData.region || "",
-            country: geoData.country || "",
-            latitude: geoData.ll ? geoData.ll[0] : "",
-            longitude: geoData.ll ? geoData.ll[1] : "",
-            timezone: geoData.timezone || "",
+            city: geo.city,
+            region: geo.region,
+            country: geo.country,
+            latitude: geo.ll[0],
+            longitude: geo.ll[1],
         };
     } else {
-        // If no data available from either source
         response.geo = { error: "Location not found" };
     }
 
     res.json(response);
 });
 
+const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
 });
