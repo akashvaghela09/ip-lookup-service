@@ -40,13 +40,12 @@ app.get("/ip-lookup", async (req, res) => {
         );
 
         ipInfoData = res.data;
-        console.log("ipInfoData: ", ipInfoData);
     } catch (error) {
         console.log("err in ip-info : ", err);
     }
 
     // Prepare response based on ipInfoData
-    if (ipInfoData && ipInfoData?.success) {
+    if (ipInfoData && ipInfoData?.status) {
         response = {
             ...response,
             country: ipInfoData.country || "",
@@ -71,7 +70,6 @@ app.get("/ip-lookup", async (req, res) => {
             longitude: geoData.ll ? geoData.ll[1] : "",
             timezone: geoData.timezone || "",
         };
-        console.log("set geo data ", geoData);
     } else {
         // If no data available from either source
         response.geo = { error: "Location not found" };
