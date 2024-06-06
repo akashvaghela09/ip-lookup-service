@@ -1,12 +1,17 @@
+const dotenv = require("dotenv");
+dotenv.config();
 const express = require("express");
 const geoip = require("geoip-lite");
 const app = express();
 const PORT = process.env.PORT || 5000;
+const axios = require("axios");
+
+const IPINFO_TOKEN = process.env.IPINFO_TOKEN;
 
 // Enable trust proxy for getting the real IP address behind a proxy
 app.set("trust proxy", true);
 
-app.get("/api/location", (req, res) => {
+app.get("/ip-lookup", async (req, res) => {
     // Get the IP address of the request
     let ipAddress = req.ip;
     let ipv4 = "";
@@ -25,6 +30,11 @@ app.get("/api/location", (req, res) => {
 
     // Get geographical data for the IP address
     const geo = geoip.lookup(ipAddress);
+
+    const ipInfoResponse = await axios.get(
+        `https://ipinfo.io/${ipAddress}?token=${IPINFO_TOKEN}`
+    );
+    const data = ipInfoResponse.data;
 
     const response = {
         ipv4: ipv4,
@@ -45,6 +55,7 @@ app.get("/api/location", (req, res) => {
         response.geo = { error: "Location not found" };
     }
 
+    response.ip_data = data;
     res.json(response);
 });
 
