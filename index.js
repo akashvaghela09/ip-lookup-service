@@ -45,8 +45,9 @@ app.get("/ip-lookup", async (req, res) => {
     }
 
     // Prepare response based on ipInfoData
-    if (ipInfoData && ipInfoData.ip) {
+    if (ipInfoData && ipInfoData?.success) {
         response = {
+            ...response,
             country: ipInfoData.country || "",
             countryCode: ipInfoData.countryCode || "",
             region: ipInfoData.region || "",
@@ -61,6 +62,7 @@ app.get("/ip-lookup", async (req, res) => {
     } else if (geoData) {
         // Fallback to geo lite package
         response = {
+            ...response,
             city: geoData.city || "",
             region: geoData.region || "",
             country: geoData.country || "",
