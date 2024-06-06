@@ -31,29 +31,6 @@ app.get("/ip-lookup", async (req, res) => {
     let geoData = geoip.lookup(ipAddress);
     let ipInfoData = {};
 
-    try {
-        const ipInfoResponse = await axios.get(
-            `https://ipinfo.io/${ipAddress}?token=${IPINFO_TOKEN}`
-        );
-        ipInfoData = ipInfoResponse.data;
-    } catch (error) {
-        console.error("Error fetching data from ipinfo:", error);
-    }
-
-    try {
-        const ipv4Response = await axios.get(`https://api.ipify.org`);
-        ipv4 = ipv4Response.data;
-    } catch (error) {
-        console.error("Error fetching IPv4 address:", error);
-    }
-
-    try {
-        const ipv6Response = await axios.get(`https://api6.ipify.org`);
-        ipv6 = ipv6Response.data;
-    } catch (error) {
-        console.error("Error fetching IPv6 address:", error);
-    }
-
     let response = {
         ipv4: ipv4 || "", // Set ipv4 to empty string if not found
         ipv6: ipv6 || "", // Set ipv6 to empty string if not found
