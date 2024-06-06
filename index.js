@@ -40,6 +40,20 @@ app.get("/ip-lookup", async (req, res) => {
         console.error("Error fetching data from ipinfo:", error);
     }
 
+    try {
+        const ipInfoResponse = await axios.get(`https://api.ipify.org`);
+        ipInfoData.ipv4 = ipInfoResponse.data;
+    } catch (error) {
+        console.error("Error fetching data from ipinfo:", error);
+    }
+
+    try {
+        const ipInfoResponse = await axios.get(`https://api6.ipify.org`);
+        ipInfoData.ipv6 = ipInfoResponse.data;
+    } catch (error) {
+        console.error("Error fetching data from ipinfo:", error);
+    }
+
     // let response = {
     //     ipv4: ipv4 || "", // Set ipv4 to empty string if not found
     //     ipv6: ipv6 || "", // Set ipv6 to empty string if not found
