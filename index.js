@@ -9,7 +9,7 @@ const PORT = process.env.PORT || 5000;
 const IPINFO_TOKEN = process.env.IPINFO_TOKEN;
 
 // Enable trust proxy for getting the real IP address behind a proxy
-app.set("trust proxy", true);
+// app.set("trust proxy", true);
 
 app.get("/ip-lookup", async (req, res) => {
     // Get the IP address of the request
@@ -44,14 +44,14 @@ app.get("/ip-lookup", async (req, res) => {
         const ipInfoResponse = await axios.get(`https://api.ipify.org`);
         ipInfoData.ipv4 = ipInfoResponse.data;
     } catch (error) {
-        console.error("Error fetching data from ipinfo:", error);
+        console.error("Error fetching data from ipinfo:", error.response);
     }
 
     try {
         const ipInfoResponse = await axios.get(`https://api6.ipify.org`);
         ipInfoData.ipv6 = ipInfoResponse.data;
     } catch (error) {
-        console.error("Error fetching data from ipinfo:", error);
+        console.error("Error fetching data from ipinfo:", error.response);
     }
 
     // let response = {
