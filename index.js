@@ -1,10 +1,10 @@
 const dotenv = require("dotenv");
 dotenv.config();
 const express = require("express");
+const axios = require("axios");
 const geoip = require("geoip-lite");
 const app = express();
 const PORT = process.env.PORT || 5000;
-const axios = require("axios");
 
 const IPINFO_TOKEN = process.env.IPINFO_TOKEN;
 
@@ -28,35 +28,50 @@ app.get("/ip-lookup", async (req, res) => {
         ipv4 = ipAddress; // This is an IPv4 address
     }
 
-    // Get geographical data for the IP address
-    const geo = geoip.lookup(ipAddress);
+    let geoData = geoip.lookup(ipAddress);
+    let ipInfoData = {};
 
-    const ipInfoResponse = await axios.get(
-        `https://ipinfo.io/${ipAddress}?token=${IPINFO_TOKEN}`
-    );
-    const data = ipInfoResponse.data;
+    try {
+        const ipInfoResponse = await axios.get(
+            `https://ipinfo.io/${ipAddress}?token=${IPINFO_TOKEN}`
+        );
+        ipInfoData = ipInfoResponse.data;
+    } catch (error) {
+        console.error("Error fetching data from ipinfo:", error);
+    }
 
-    const response = {
+    let response = {
         ipv4: ipv4,
         ipv6: ipv6,
         geo: {},
     };
 
-    if (geo) {
+    // Prepare response based on ipInfoData
+    if (ipInfoData && ipInfoData.ip) {
         response.geo = {
-            city: geo.city,
-            region: geo.region,
-            country: geo.country,
-            latitude: geo.ll[0],
-            longitude: geo.ll[1],
+            city: ipInfoData.city || "",
+            region: ipInfoData.region || "",
+            country: ipInfoData.country || "",
+            latitude: ipInfoData.loc ? ipInfoData.loc.split(",")[0] : "",
+            longitude: ipInfoData.loc ? ipInfoData.loc.split(",")[1] : "",
+            timezone: ipInfoData.timezone || "",
+            isp: ipInfoData.org || "",
         };
-        response.geo_complete = geo;
+    } else if (geoData) {
+        // Fallback to geo lite package
+        response.geo = {
+            city: geoData.city || "",
+            region: geoData.region || "",
+            country: geoData.country || "",
+            latitude: geoData.ll ? geoData.ll[0] : "",
+            longitude: geoData.ll ? geoData.ll[1] : "",
+            timezone: geoData.timezone || "",
+        };
     } else {
+        // If no data available from either source
         response.geo = { error: "Location not found" };
     }
 
-    response.ip_data = data;
-    response.ipAddress = ipAddress;
     res.json(response);
 });
 
