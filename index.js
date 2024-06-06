@@ -56,6 +56,7 @@ app.get("/ip-lookup", async (req, res) => {
     }
 
     response.ip_data = data;
+    response.ipAddress = ipAddress;
     res.json(response);
 });
 
