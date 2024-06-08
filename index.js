@@ -79,8 +79,9 @@ app.get("/ip-lookup", async (req, res) => {
 
 app.get("/ip8", async (req, res) => {
     try {
-        const clientIP = req.ip; // Extract client's IP address from the request
-        console.log("clientIP: ", clientIP);
+        const clientIP =
+            req.headers["x-forwarded-for"] || req.connection.remoteAddress;
+        console.log("ipv8 clientIP: ", clientIP);
         const response = await axios.post("https://api2.ip8.com/ip/info", {
             clientIP,
         });
@@ -93,7 +94,11 @@ app.get("/ip8", async (req, res) => {
 
 app.get("/ip4", async (req, res) => {
     try {
-        const response = await axios.post("https://ip4.ip8.com/");
+        const clientIP = req.ip;
+        console.log("ipv4 clientIP: ", clientIP);
+        const response = await axios.post("https://ip4.ip8.com/", {
+            clientIP,
+        });
         res.json(response.data);
     } catch (error) {
         console.error("Error:", error);
@@ -103,7 +108,11 @@ app.get("/ip4", async (req, res) => {
 
 app.get("/ip6", async (req, res) => {
     try {
-        const response = await axios.post("https://ip6.ip8.com/");
+        const clientIP = req.ip;
+        console.log("ipv6 clientIP: ", clientIP);
+        const response = await axios.post("https://ip6.ip8.com/", {
+            clientIP,
+        });
         res.json(response.data);
     } catch (error) {
         console.error("Error:", error);
