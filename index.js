@@ -9,29 +9,43 @@ const PORT = process.env.PORT || 5000;
 // Enable trust proxy for getting the real IP address behind a proxy
 app.set("trust proxy", true);
 
-app.get("/ip-lookup/:ip", async (req, res) => {
+app.get("/ip-lookup", async (req, res) => {
     console.log("req.ip : ", req.ip);
-    const { ip } = req.params;
-    console.log("q: ", ip);
-    // Get the IP address of the request
-    let ipAddress = ip;
+    // const { ip } = req.params;
+    let clientIp = req.ip;
+
+    // Get the X-Forwarded-For header if available
+    let xForwardedFor = req.headers["x-forwarded-for"];
+
+    // Extract IPv4 and IPv6 addresses if available
     let ipv4 = "";
     let ipv6 = "";
-    console.log("ipAddress: ", ipAddress);
 
-    if (ipAddress === "::1" || ipAddress === "::ffff:127.0.0.1") {
-        // For local testing, you can use a known public IP address
-        ipAddress = "8.8.8.8"; // Google's public DNS for testing purposes
-    } else if (ipAddress.startsWith("::ffff:")) {
-        ipv4 = ipAddress.split(":").pop(); // Extract the IPv4 address
-    } else if (ipAddress.includes(":")) {
-        ipv6 = ipAddress; // This is an IPv6 address
+    if (xForwardedFor) {
+        // Split the X-Forwarded-For header value
+        let ips = xForwardedFor.split(",");
+
+        // Iterate through the IP addresses
+        ips.forEach((ip) => {
+            ip = ip.trim();
+            if (ip.includes(":")) {
+                ipv6 = ip; // Assuming it's an IPv6 address
+            }
+        });
     } else {
-        ipv4 = ipAddress; // This is an IPv4 address
+        // If X-Forwarded-For header is not present, use req.ip
+        if (clientIp.includes(":")) {
+            ipv6 = clientIp;
+        }
     }
 
-    let geoData = geoip.lookup(ipAddress);
-    console.log("geoData: ", geoData);
+    // if (ip.includes(":")) {
+    //     ipv6 = ip; // This is an IPv6 address
+    // } else {
+    //     ipv4 = ip; // This is an IPv4 address
+    // }
+
+    let geoData = geoip.lookup(clientIp);
     let ipInfoData = {};
 
     let response = {
@@ -51,7 +65,7 @@ app.get("/ip-lookup/:ip", async (req, res) => {
     }
 
     // Prepare response based on ipInfoData
-    if (ipInfoData && ipInfoData?.status) {
+    if (ipInfoData && ipInfoData?.status === "success") {
         response = {
             ...response,
             country: ipInfoData.country || "",
@@ -64,6 +78,7 @@ app.get("/ip-lookup/:ip", async (req, res) => {
             longitude: ipInfoData.lon || "",
             timezone: ipInfoData.timezone || "",
             isp: ipInfoData.isp || "",
+            org: ipInfoData.org || "",
         };
     } else if (geoData) {
         // Fallback to geo lite package
@@ -82,47 +97,6 @@ app.get("/ip-lookup/:ip", async (req, res) => {
     }
 
     res.json(response);
-});
-
-app.get("/check", async (req, res) => {
-    let clientIp = req.ip;
-
-    // Get the X-Forwarded-For header if available
-    let xForwardedFor = req.headers["x-forwarded-for"];
-
-    // Extract IPv4 and IPv6 addresses if available
-    let ipv4 = "";
-    let ipv6 = "";
-
-    if (xForwardedFor) {
-        // Split the X-Forwarded-For header value
-        let ips = xForwardedFor.split(",");
-        console.log("ips: ", ips);
-
-        // Iterate through the IP addresses
-        ips.forEach((ip) => {
-            ip = ip.trim();
-            if (ip.includes(":")) {
-                ipv6 = ip; // Assuming it's an IPv6 address
-            } else {
-                ipv4 = ip; // Assuming it's an IPv4 address
-            }
-        });
-    } else {
-        // If X-Forwarded-For header is not present, use req.ip
-        if (clientIp.includes(":")) {
-            ipv6 = clientIp;
-        } else {
-            ipv4 = clientIp;
-        }
-    }
-
-    // Respond with the IP addresses
-    res.json({
-        ipv4: ipv4,
-        ipv6: ipv6,
-        ips: ips,
-    });
 });
 
 app.listen(PORT, () => {
