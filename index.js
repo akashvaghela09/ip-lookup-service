@@ -9,11 +9,15 @@ const PORT = process.env.PORT || 5000;
 // Enable trust proxy for getting the real IP address behind a proxy
 app.set("trust proxy", true);
 
-app.get("/ip-lookup", async (req, res) => {
+app.get("/ip-lookup/:ip", async (req, res) => {
+    console.log("req.ip : ", req.ip);
+    const { ip } = req.params;
+    console.log("q: ", ip);
     // Get the IP address of the request
-    let ipAddress = req.ip;
+    let ipAddress = ip;
     let ipv4 = "";
     let ipv6 = "";
+    console.log("ipAddress: ", ipAddress);
 
     if (ipAddress === "::1" || ipAddress === "::ffff:127.0.0.1") {
         // For local testing, you can use a known public IP address
@@ -27,6 +31,7 @@ app.get("/ip-lookup", async (req, res) => {
     }
 
     let geoData = geoip.lookup(ipAddress);
+    console.log("geoData: ", geoData);
     let ipInfoData = {};
 
     let response = {
@@ -40,6 +45,7 @@ app.get("/ip-lookup", async (req, res) => {
         );
 
         ipInfoData = res.data;
+        console.log("ipInfoData: ", ipInfoData);
     } catch (error) {
         console.log("err in ip-info : ", err);
     }
@@ -76,6 +82,47 @@ app.get("/ip-lookup", async (req, res) => {
     }
 
     res.json(response);
+});
+
+app.get("/check", async (req, res) => {
+    let clientIp = req.ip;
+
+    // Get the X-Forwarded-For header if available
+    let xForwardedFor = req.headers["x-forwarded-for"];
+
+    // Extract IPv4 and IPv6 addresses if available
+    let ipv4 = "";
+    let ipv6 = "";
+
+    if (xForwardedFor) {
+        // Split the X-Forwarded-For header value
+        let ips = xForwardedFor.split(",");
+        console.log("ips: ", ips);
+
+        // Iterate through the IP addresses
+        ips.forEach((ip) => {
+            ip = ip.trim();
+            if (ip.includes(":")) {
+                ipv6 = ip; // Assuming it's an IPv6 address
+            } else {
+                ipv4 = ip; // Assuming it's an IPv4 address
+            }
+        });
+    } else {
+        // If X-Forwarded-For header is not present, use req.ip
+        if (clientIp.includes(":")) {
+            ipv6 = clientIp;
+        } else {
+            ipv4 = clientIp;
+        }
+    }
+
+    // Respond with the IP addresses
+    res.json({
+        ipv4: ipv4,
+        ipv6: ipv6,
+        ips: ips,
+    });
 });
 
 app.listen(PORT, () => {
