@@ -77,6 +77,16 @@ app.get("/ip-lookup", async (req, res) => {
     res.json(response);
 });
 
+app.get("/ip8", async (req, res) => {
+    try {
+        const response = await axios.post("https://api2.ip8.com/ip/info");
+        res.json(response.data);
+    } catch (error) {
+        console.error("Error:", error);
+        res.status(500).send("Internal Server Error");
+    }
+});
+
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
 });
