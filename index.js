@@ -20,30 +20,27 @@ app.get("/ip-lookup", async (req, res) => {
     // Extract IPv4 and IPv6 addresses if available
     let ipv4 = "";
     let ipv6 = "";
+    let ipList = [];
 
     if (xForwardedFor) {
         // Split the X-Forwarded-For header value
-        let ips = xForwardedFor.split(",");
-        console.log("ips: ", ips);
+        ipList = xForwardedFor.split(",");
+        console.log("ips: ", ipList);
         // Iterate through the IP addresses
-        ips.forEach((ip) => {
+        ipList.forEach((ip) => {
             ip = ip.trim();
             if (ip.includes(":")) {
                 ipv6 = ip; // Assuming it's an IPv6 address
             }
         });
-    } else {
-        // If X-Forwarded-For header is not present, use req.ip
-        if (clientIp.includes(":")) {
-            ipv6 = clientIp;
-        }
     }
 
-    // if (ip.includes(":")) {
-    //     ipv6 = ip; // This is an IPv6 address
-    // } else {
-    //     ipv4 = ip; // This is an IPv4 address
-    // }
+    if (clientIp.includes(":")) {
+        ipv6 = clientIp;
+    } else {
+        ipv4 = clientIp;
+    }
+
 
     let geoData = geoip.lookup(clientIp);
     let ipInfoData = {};
