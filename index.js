@@ -24,7 +24,7 @@ app.get("/ip-lookup", async (req, res) => {
     if (xForwardedFor) {
         // Split the X-Forwarded-For header value
         let ips = xForwardedFor.split(",");
-
+        console.log("ips: ", ips);
         // Iterate through the IP addresses
         ips.forEach((ip) => {
             ip = ip.trim();
