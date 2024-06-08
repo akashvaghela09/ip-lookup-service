@@ -79,7 +79,30 @@ app.get("/ip-lookup", async (req, res) => {
 
 app.get("/ip8", async (req, res) => {
     try {
-        const response = await axios.post("https://api2.ip8.com/ip/info");
+        const clientIP = req.ip; // Extract client's IP address from the request
+        const response = await axios.post("https://api2.ip8.com/ip/info", {
+            clientIP,
+        });
+        res.json(response.data);
+    } catch (error) {
+        console.error("Error:", error);
+        res.status(500).send("Internal Server Error");
+    }
+});
+
+app.get("/ip4", async (req, res) => {
+    try {
+        const response = await axios.post("https://ip4.ip8.com/");
+        res.json(response.data);
+    } catch (error) {
+        console.error("Error:", error);
+        res.status(500).send("Internal Server Error");
+    }
+});
+
+app.get("/ip6", async (req, res) => {
+    try {
+        const response = await axios.post("https://ip6.ip8.com/");
         res.json(response.data);
     } catch (error) {
         console.error("Error:", error);
