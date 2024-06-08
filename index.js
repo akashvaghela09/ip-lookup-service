@@ -64,7 +64,7 @@ app.get("/ip/:ipAddress", async (req, res) => {
         }
     }
 
-    res.status(200).json({ data: response });
+    res.status(200).json(response);
 });
 
 app.listen(PORT, () => {

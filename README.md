@@ -30,26 +30,24 @@ Access the service via: `/ip/:ipAddress`
 
 ```json
 {
-    "data": {
-        "geoip": {
-            "city": null,
-            "country": "United States",
-            "continent": "North America",
-            "latitude": 37.751,
-            "longitude": -97.822,
-            "postalcode": null,
-            "region": null,
-            "isocode": "US",
-            "timezone": "America/Chicago"
-        },
-        "isp": {
-            "autonomousSystemNumber": 15169,
-            "autonomousSystemOrganization": "GOOGLE",
-            "ipAddress": "8.8.8.8",
-            "network": "8.8.8.8/32",
-            "isp": "Google",
-            "organization": "Google"
-        }
+    "geoip": {
+        "city": null,
+        "country": "United States",
+        "continent": "North America",
+        "latitude": 37.751,
+        "longitude": -97.822,
+        "postalcode": null,
+        "region": null,
+        "isocode": "US",
+        "timezone": "America/Chicago"
+    },
+    "isp": {
+        "autonomousSystemNumber": 15169,
+        "autonomousSystemOrganization": "GOOGLE",
+        "ipAddress": "8.8.8.8",
+        "network": "8.8.8.8/32",
+        "isp": "Google",
+        "organization": "Google"
     }
 }
 ```
