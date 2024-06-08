@@ -80,6 +80,7 @@ app.get("/ip-lookup", async (req, res) => {
 app.get("/ip8", async (req, res) => {
     try {
         const clientIP = req.ip; // Extract client's IP address from the request
+        console.log("clientIP: ", clientIP);
         const response = await axios.post("https://api2.ip8.com/ip/info", {
             clientIP,
         });
