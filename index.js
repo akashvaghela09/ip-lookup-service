@@ -62,7 +62,7 @@ app.get("/ip/:ipAddress", async (req, res) => {
         }
     }
 
-    res.json(response);
+    res.status(200).json({ data: response });
 });
 
 app.listen(PORT, () => {
