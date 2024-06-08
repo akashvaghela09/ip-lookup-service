@@ -2,11 +2,13 @@ const express = require("express");
 const axios = require("axios");
 const geoip = require("geoip-lite");
 const app = express();
+const cors = require("cors");
 const PORT = process.env.PORT || 5000;
 let Country = require("country-state-city").Country;
 let State = require("country-state-city").State;
 
 app.set("trust proxy", true);
+app.use(cors());
 
 app.get("/ip/:ipAddress", async (req, res) => {
     const { ipAddress } = req.params;
