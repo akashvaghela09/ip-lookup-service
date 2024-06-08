@@ -79,11 +79,8 @@ app.get("/ip-lookup", async (req, res) => {
 
 app.get("/ip8", async (req, res) => {
     try {
-        const clientIP =
-            req.headers["x-forwarded-for"] || req.connection.remoteAddress;
-        console.log("ipv8 clientIP: ", clientIP);
         const response = await axios.post("https://api2.ip8.com/ip/info", {
-            clientIP,
+            clientIP: "43.249.228.84",
         });
         res.json(response.data);
     } catch (error) {
