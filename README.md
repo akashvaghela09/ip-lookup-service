@@ -52,6 +52,30 @@ Access the service via: `/ip/:ipAddress`
 }
 ```
 
+### How to Get IP Address
+
+#### For IPv4:
+
+```javascript
+try {
+    const res = await axios.get("https://ip4.ip8.com");
+    console.log("IPv4:", res.data);
+} catch (err) {
+    console.log("Failed to fetch IPv4 address:", err);
+}
+```
+
+#### For IPv6:
+
+```javascript
+try {
+    const res = await axios.get("https://ip6.ip8.com");
+    console.log("IPv6:", res.data);
+} catch (err) {
+    console.log("Failed to fetch IPv6 address:", err);
+}
+```
+
 ### How to Set Up Locally
 
 1. **Clone Repository:**
