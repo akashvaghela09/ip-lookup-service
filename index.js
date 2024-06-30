@@ -9,7 +9,11 @@ let Country = require("country-state-city").Country;
 let State = require("country-state-city").State;
 
 app.set("trust proxy", true);
-app.use(cors());
+app.use(
+    cors({
+        origin: "*",
+    })
+);
 
 app.get("/ip/:ipAddress", async (req, res) => {
     const { ipAddress } = req.params;
